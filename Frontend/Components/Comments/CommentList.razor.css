@@ -1,0 +1,59 @@
+/* CommentList component styles */
+.comments-section {
+    margin-top: 2rem;
+    border-top: 1px solid var(--gb-dark2);
+    padding-top: 1.5rem;
+}
+
+.comments-section h4 {
+    margin-bottom: 1.5rem;
+    color: var(--gb-light1);
+}
+
+.add-comment-card {
+    border-left: 4px solid var(--gb-bright-blue);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: var(--gb-dark0-soft);
+}
+
+.comment-card {
+    border-left: 3px solid var(--gb-neutral-blue);
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    background-color: var(--gb-dark1);
+}
+
+.comment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    border-left-color: var(--gb-bright-blue);
+}
+
+.comment-card p {
+    word-break: break-word;
+    color: var(--gb-light1);
+}
+
+/* Comment section alerts */
+::deep .alert-info {
+    background-color: var(--gb-dark0-soft);
+    border-color: var(--gb-dark2);
+    border-left: 4px solid var(--gb-neutral-blue);
+    color: var(--gb-light1);
+}
+
+::deep .alert-danger {
+    background-color: var(--gb-dark0-soft);
+    border-color: var(--gb-dark2);
+    border-left: 4px solid var(--gb-neutral-red);
+    color: var(--gb-light1);
+}
+
+::deep .alert i {
+    color: var(--gb-bright-blue);
+}
+
+::deep .alert-danger i {
+    color: var(--gb-bright-red);
+}

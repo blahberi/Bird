@@ -1,0 +1,70 @@
+@page "/Register"
+@using Frontend.Models
+@using Frontend.Services
+@using Shared
+@using Frontend.Components.CaptchaComponent
+
+<PageTitle>Register</PageTitle>
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 100vh">
+    <div class="card p-4 register-card">
+        <h3 class="text-center">Register</h3>
+        <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-center register-section-header">Account Information</h5>
+                    <div class="form-group mt-3">
+                        <label for="username">Username</label>
+                        <InputText id="username" class="form-control" @bind-Value="registerModel.Username" />
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="password">Password</label>
+                        <InputText id="password" type="password" class="form-control"
+                            @bind-Value="registerModel.Password" />
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <InputText id="confirmPassword" type="password" class="form-control"
+                            @bind-Value="registerModel.ConfirmPassword" />
+                    </div>
+                    <CaptchaComponent @ref="captchaComponent" />
+                </div>
+                <div class="col-md-6">
+                    <h5 class="text-center register-section-header">Personal Information</h5>
+                    <div class="form-group mt-3">
+                        <label for="email">Email</label>
+                        <InputText id="email" type="email" class="form-control" @bind-Value="registerModel.Email" />
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="firstName">First Name</label>
+                        <InputText id="firstName" class="form-control" @bind-Value="registerModel.FirstName" />
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="lastName">Last Name</label>
+                        <InputText id="lastName" class="form-control" @bind-Value="registerModel.LastName" />
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="country">Country</label>
+                        <InputText id="country" class="form-control" @bind-Value="registerModel.Country" />
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="city">City</label>
+                        <InputText id="city" class="form-control" @bind-Value="registerModel.City" />
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="gender">Gender</label>
+                        <InputSelect id="gender" class="form-select" @bind-Value="registerModel.Gender">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </InputSelect>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-3">Register</button>
+        </EditForm>
+    </div>
+</div>

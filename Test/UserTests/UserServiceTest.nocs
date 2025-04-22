@@ -1,0 +1,205 @@
+using Backend.DataAccess;
+using Backend.DataAccess.Models;
+using Backend.Services;
+using Microsoft.EntityFrameworkCore;
+using Shared;
+using Shared.DTOs;
+
+namespace Test;
+
+public class UserServiceTest
+{
+    private ApplicationDbContext dbContext;
+    private IUserService userService;
+    private IAuthService authService;
+        
+    [SetUp]
+    public void Setup()
+    {
+        DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .Options;
+        this.dbContext = new ApplicationDbContext(options);
+        this.authService = new AuthService();
+        this.userService = new UserService(this.authService, this.dbContext);
+    }
+    
+    [TearDown]
+    public void TearDown()
+    {
+        this.dbContext.Database.EnsureDeleted();
+        this.dbContext.Dispose();
+    }
+
+    [Test]
+    public void RegisterValidUser()
+    {
+        UserRegistartion registration = new UserRegistartion
+        {
+            Username = "testUsername",
+            Password = "testPassword",
+            FirstName = "testFirstName",
+            LastName = "testLastName",
+            Gender = "testGender"
+        };
+        
+        Result result = this.userService.RegisterUser(registration).Result;
+        if (!result.Success)
+        {
+            Assert.Fail();
+        }
+        
+        User? user = this.dbContext.Users.FirstOrDefaultAsync(u => u.Username == registration.Username).Result;
+        if (user == null)
+        {
+            Assert.Fail();
+        }
+
+        if (user.Username != registration.Username || 
+            user.FirstName != registration.FirstName ||
+            user.LastName != registration.LastName ||
+            user.Email != registration.Email || 
+            user.Country != registration.Country || 
+            user.City != registration.City ||
+            user.Gender != registration.Gender)
+        {
+            Assert.Fail();
+        }
+        
+        Assert.Pass();
+    }
+
+    [Test]
+    public void RegisterUserWithExistingUsername()
+    {
+        UserRegistartion registration = new UserRegistartion
+        {
+            Username = "testUsername",
+            Password = "testPassword1",
+            FirstName = "testFirstName1",
+            LastName = "testLastName1",
+            Email = "test@example.com",
+            Country = "testCountry1",
+            City = "testCity1",
+            Gender = "testGender1"
+        };
+
+        Result result1 = this.userService.RegisterUser(registration).Result;
+        if (!result1.Success)
+        {
+            Assert.Fail();
+        }
+
+        UserRegistartion registration2 = new UserRegistartion
+        {
+            Username = "testUsername",
+            Password = "testPassword2",
+            FirstName = "testFirstName2",
+            LastName = "testLastName2",
+            Email = "test@example.co.il",
+            Country = "testCountry2",
+            City = "testCity2",
+            Gender = "testGender2"
+        };
+
+        Result result2 = this.userService.RegisterUser(registration2).Result;
+        if (result2.Success)
+        {
+            Assert.Fail();
+        }
+
+        if (result2.Error != "Username already exists")
+        {
+            Assert.Fail();
+        }
+
+        Assert.Pass();
+    }
+    
+    [Test]
+    public void LoginValidUser()
+    {
+        UserRegistartion registration = new UserRegistartion
+        {
+            Username = "testUsername",
+            Password = "testPassword",
+            FirstName = "testFirstName",
+            LastName = "testLastName",
+            Email = "test@example.com",
+            Country = "testCountry",
+            City = "testCity",
+            Gender = "testGender"
+        };
+
+        Result result1 = this.userService.RegisterUser(registration).Result;
+        if (!result1.Success)
+        {
+            Assert.Fail();
+        }
+        
+        UserLogin login = new UserLogin
+        {
+            Username = "testUsername",
+            Password = "testPassword"
+        };
+        
+        Result<string> result = this.userService.LoginUser(login).Result;
+        if (!result.Success || result.Value == null)
+        {
+            Assert.Fail();
+        }
+
+        string token = result.Value;
+        if (!this.authService.ValidateToken(token, out string? username))
+        {
+            Assert.Fail();
+        }
+        if (username != "testUsername")
+        {
+            Assert.Fail();
+        }
+        
+        Assert.Pass();
+    }
+
+    [Test]
+    public void LoginUserWithWrongPassword()
+    {
+        UserRegistartion registration = new UserRegistartion
+        {
+            Username = "testUsername",
+            Password = "testPassword",
+            FirstName = "testFirstName",
+            LastName = "testLastName",
+            Email = "test@email.com",
+            Country = "testCountry",
+            City = "testCity",
+            Gender = "testGender"
+        };
+        
+        Result result = this.userService.RegisterUser(registration).Result;
+        if (!result.Success)
+        {
+            Assert.Fail();
+        }
+        
+        UserLogin login = new UserLogin
+        {
+            Username = "testUsername",
+            Password = "wrongPassword"
+        };
+        
+        Result<string> result2 = this.userService.LoginUser(login).Result;
+        if (result2.Success)
+        {
+            Assert.Fail();
+        }
+        
+        if (result2.Error != "Invalid username or password")
+        {
+            Assert.Fail();
+        }
+        
+        Assert.Pass();
+    }
+}

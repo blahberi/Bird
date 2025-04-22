@@ -1,0 +1,64 @@
+@page "/posts/create"
+@using Frontend.Components.AuthRedirect
+@using Frontend.Services
+@using Shared
+@using Shared.DTOs.Posts
+
+<PageTitle>Create New Post</PageTitle>
+
+<AuthRedirect />
+
+<div class="container mt-4">
+    <div class="mb-3">
+        <button class="btn btn-outline-secondary" @onclick="GoBack">
+            <i class="bi bi-arrow-left"></i> Back to Posts
+        </button>
+    </div>
+
+    <div class="card create-post-card">
+        <div class="card-header">
+            <h2>Create New Post</h2>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@postModel" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <InputText id="title" class="form-control" @bind-Value="postModel.Title" />
+                    <ValidationMessage For="@(() => postModel.Title)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="content" class="form-label">Content</label>
+                    <InputTextArea id="content" class="form-control" rows="6" @bind-Value="postModel.Content" />
+                    <ValidationMessage For="@(() => postModel.Content)" />
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary me-2" @onclick="GoBack">Cancel</button>
+                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm text-light me-1" role="status"
+                                aria-hidden="true"></span>
+                            <span>Submitting...</span>
+                        }
+                        else
+                        {
+                            <span>Create Post</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger mt-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> @errorMessage
+                </div>
+            }
+        </div>
+    </div>
+</div>

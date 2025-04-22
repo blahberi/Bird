@@ -1,0 +1,59 @@
+@using Frontend.Models
+@using Frontend.Services
+@using Shared
+@using Shared.DTOs.Captcha
+
+<div class="captcha-container">
+    <div class="recaptcha-box" @onclick="ShowCaptchaPopup">
+        <div class="recaptcha-checkbox">
+            <div class="recaptcha-checkmark" style="display: @(isCaptchaCompleted ? "block" : "none")">
+                &#10003;
+            </div>
+        </div>
+        <div class="recaptcha-label">
+            I'm not a robot
+        </div>
+    </div>
+</div>
+
+@if (isCaptchaPopupVisible)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Captcha Verification</h5>
+                    <button type="button" class="modal-close-button" @onclick="CloseCaptchaPopup" aria-label="Close">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="captcha-image">
+                        <div class="captcha-image-container">
+                            <img src="@captchaImageUrl" alt="Captcha" />
+                            <button class="refresh-button" @onclick="GetCaptcha">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                        <small>*Captcha is valid for 2 minutes</small>
+                    </div>
+                    <EditForm Model="captchaAnswerModel" OnValidSubmit="ValidateCaptcha">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group mt-3">
+                            <label for="captchaInput">Enter Captcha</label>
+                            <InputText id="captchaInput" class="form-control" @bind-Value="captchaAnswerModel.Answer" />
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                    </EditForm>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger mt-3">
+                            @errorMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,21 @@
+@{
+    var buttonClass = Small ? "btn btn-sm" : "btn";
+    buttonClass += IsLiked ? " btn-primary" : " btn-outline-primary";
+    var iconClass = IsLiked ? "bi bi-heart-fill" : "bi bi-heart";
+}
+
+<button @key="PostId" class="@buttonClass" @onclick="ToggleLike" disabled="@IsLoading">
+    <div class="d-flex align-items-center">
+        <i class="@iconClass"></i>
+        @if (ShowCount)
+        {
+            <span class="ms-1">@LikesCount</span>
+        }
+        @if (IsLoading)
+        {
+            <div class="spinner-border spinner-border-sm ms-1" role="status" style="width: 0.6rem; height: 0.6rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        }
+    </div>
+</button>

@@ -1,0 +1,85 @@
+.navbar-toggler {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--gb-dark2); /* Gruvbox dark2 for border */
+}
+
+.top-row {
+    height: 3.5rem;
+    background-color: var(--gb-neutral-blue); /* Gruvbox dark0 for background */
+    border-bottom: 1px solid var(--gb-dark2); /* Gruvbox dark2 for border */
+}
+
+.navbar-brand {
+    font-size: 1.1rem;
+    color: var(--gb-light1); /* Gruvbox light1 for text */
+}
+
+.bi {
+    display: inline-block;
+    position: relative;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.75rem;
+    top: -1px;
+    background-size: cover;
+}
+
+.bi-house-door-fill {
+    font-size: 1.5rem;
+    padding-bottom: 3rem;
+}
+.bi-chat-left-fill {
+    font-size: 1.25rem;
+    padding-bottom: 2.5rem;
+}
+.bi-person-circle {
+    font-size: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+.nav-item {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+}
+
+.nav-item:first-of-type {
+    padding-top: 1rem;
+}
+
+.nav-item:last-of-type {
+    padding-bottom: 1rem;
+}
+
+.nav-item ::deep a {
+    color: var(--gb-light1); /* Gruvbox light1 for text */
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+}
+
+.nav-item ::deep a.active {
+    background-color: var(--gb-dark2); /* Gruvbox dark2 for active background */
+    color: var(--gb-light1); /* Gruvbox light1 for active text */
+}
+
+.nav-item ::deep a:hover {
+    background-color: var(--gb-dark1); /* Gruvbox dark1 for hover background */
+    color: var(--gb-light1); /* Gruvbox light1 for hover text */
+}
+
+@media (min-width: 641px) {
+    .navbar-toggler {
+        display: none;
+    }
+
+    .collapse {
+        display: block;
+    }
+
+    .nav-scrollable {
+        height: calc(100vh - 3.5rem);
+        overflow-y: auto;
+    }
+}

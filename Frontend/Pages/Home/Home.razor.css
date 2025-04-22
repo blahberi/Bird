@@ -1,0 +1,19 @@
+/* Home page specific styles */
+h1 {
+    color: var(--gb-light0);
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

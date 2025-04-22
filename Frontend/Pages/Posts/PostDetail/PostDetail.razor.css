@@ -1,0 +1,60 @@
+/* PostDetail page specific styles */
+.post-detail-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    background-color: var(--gb-dark0-soft);
+}
+
+.post-detail-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--gb-light0);
+}
+
+.post-detail-content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    white-space: pre-line;
+    color: var(--gb-light1);
+}
+
+.action-button {
+    transition: all 0.2s;
+}
+
+.action-button:hover {
+    transform: scale(1.05);
+}
+
+.comment-success-alert {
+    background-color: var(--gb-dark0-soft);
+    border-color: var(--gb-dark2);
+    border-left: 4px solid var(--gb-neutral-green);
+    color: var(--gb-light1);
+    animation: fadeInOut 3s ease-in-out;
+}
+
+.comment-success-alert i {
+    color: var(--gb-bright-green);
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    85% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}

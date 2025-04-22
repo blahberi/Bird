@@ -1,0 +1,75 @@
+﻿@using Frontend.Services
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Bird</a>
+        <button title="Navigation menu" class="navbar-toggler">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable d-flex flex-column">
+    <div class="flex-grow-1 overflow-auto">
+        <nav class="flex-column">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <i class="bi bi-house-door-fill"></i> Home
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="posts" Match="NavLinkMatch.All">
+                    <i class="bi bi-chat-left-fill"></i> Posts
+                </NavLink>
+            </div>
+        </nav>
+    </div>
+
+    @if (isAuthorized)
+    {
+        <nav class="flex-column">
+            <div class="nav-item px-3 dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="bi bi-person-circle"></i> @username
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="/settings">Settings</a></li>
+                    <li><a class="dropdown-item" @onclick="LogOut">Log out</a></li>
+                </ul>
+            </div>
+        </nav>
+    }
+</div>
+
+@code {
+    private bool isAuthorized;
+    private string username = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        AuthService.OnStateChanged += RefreshAuthState;
+        await RefreshAuthState();
+    }
+
+    [Inject]
+    private IAuthService AuthService { get; set; }
+    [Inject]
+    private IUserService UserService { get; set; }
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
+
+    private async Task LogOut()
+    {
+        await AuthService.LogOutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private async Task RefreshAuthState()
+    {
+        isAuthorized = await AuthService.IsAuthorizedAsync;
+        username = await UserService.Username;
+        StateHasChanged();
+    }
+}

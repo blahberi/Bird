@@ -1,0 +1,13 @@
+using Backend.Core;
+using Shared;
+
+namespace Backend.Services;
+
+public interface IFriendsService
+{
+    Task<Result> SendFriendRequest(int userId, int friendId);
+    Task<Result> AcceptFriendRequest(int userId, int friendId);
+    Task<Result> RejectFriendRequest(int userId, int friendId);
+    Task<Result<List<User>>> GetFriends(int userId, int page, int pageSize);
+    Task<Result<List<User>>> GetPendingFriendRequests(int userId, int page, int pageSize);
+}

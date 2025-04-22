@@ -1,0 +1,93 @@
+@using Frontend.Services
+@using Shared
+@using Shared.DTOs.Posts
+@using Frontend.Components.LikeButton
+
+<div class="comments-section mt-4">
+    <h4>Comments (@(totalCount))</h4>
+
+    <div class="card mb-4 add-comment-card">
+        <div class="card-body">
+            <EditForm Model="@newComment" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                    <InputTextArea class="form-control" placeholder="Add a comment..." rows="2"
+                        @bind-Value="newComment.Content" />
+                    <ValidationMessage For="@(() => newComment.Content)" />
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            <span>Posting...</span>
+                        }
+                        else
+                        {
+                            <span>Post Comment</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center my-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading comments...</span>
+            </div>
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @errorMessage
+        </div>
+    }
+    else if (comments.Any())
+    {
+        <div class="comment-list">
+            @foreach (var comment in comments)
+            {
+                <div class="card mb-3 comment-card">
+                    <div class="card-body">
+                        <p class="mb-2">@comment.Content</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">@comment.UserName</small>
+                            <div class="d-flex align-items-center gap-2">
+                                <LikeButton PostId="@comment.Id" InitialIsLiked="@comment.IsLikedByCurrentUser"
+                                    ShowCount="true" Small="true" />
+                                <small class="text-muted">@comment.CreatedAt.ToString("g")</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (HasMoreComments)
+            {
+                <button class="btn btn-outline-primary w-100" @onclick="LoadNextPage" disabled="@isLoadingMore">
+                    @if (isLoadingMore)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        <span>Loading more...</span>
+                    }
+                    else
+                    {
+                        <span>Load More Comments</span>
+                    }
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-chat-left me-2"></i> No comments yet. Be the first to comment!
+        </div>
+    }
+</div>

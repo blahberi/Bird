@@ -1,0 +1,172 @@
+using Backend.Core;
+using Backend.DataAccess;
+using Backend.enums;
+using Microsoft.EntityFrameworkCore;
+using Shared;
+
+namespace Backend.Services;
+
+internal class FriendService : IFriendsService
+{
+    private readonly IUserService userService;
+    private readonly ApplicationDbContext dbContext;
+
+    public FriendService(IUserService userService, ApplicationDbContext dbContext)
+    {
+        this.userService = userService;
+        this.dbContext = dbContext;
+    }
+    
+    public async Task<Result> SendFriendRequest(int userId, int friendId)
+    {
+        try
+        {
+            await this.dbContext.FriendRequests.AddAsync(new FriendRequest()
+            {
+                SenderId = userId,
+                ReceiverId = userId,
+                Status = FriendRequestStatus.Pending
+            });
+            await this.dbContext.SaveChangesAsync();
+            return Result.SuccessResult();
+        }
+        catch
+        {
+            return Result.FailureResult("Failed to send friend request");
+        }
+    }
+    
+    public async Task<Result> AcceptFriendRequest(int userId, int friendRequestId)
+    {
+        try
+        {
+            FriendRequest? friendRequest = await this.dbContext.FriendRequests
+                .FirstOrDefaultAsync(f => f.Id == friendRequestId);
+            if (friendRequest == null)
+            {
+                return Result.FailureResult("Friend request not found");
+            }
+            if (friendRequest.ReceiverId != userId)
+            {
+                return Result.FailureResult("You are not the receiver of this friend request");
+            }
+            friendRequest.Status = FriendRequestStatus.Accepted;
+            await this.dbContext.SaveChangesAsync();
+            return Result.SuccessResult();
+        }
+        catch 
+        {
+            return Result.FailureResult("Failed to accept friend request");
+        }
+    }
+    
+    public async Task<Result> RejectFriendRequest(int userId, int friendId)
+    {
+        try
+        {
+            Result<User> userResult = await this.userService.GetUserById(userId);
+            Result<User> friendResult = await this.userService.GetUserById(userId);
+            
+            if (!userResult.Success      || 
+                !friendResult.Success    || 
+                userResult.Value == null || 
+                friendResult.Value == null)
+            {
+                return Result.FailureResult("User or friend not found");
+            }
+            
+            User user = userResult.Value;
+            User friend = friendResult.Value;
+            
+            FriendRequest? friendRequest = await this.dbContext.FriendRequests
+                .FirstOrDefaultAsync(f =>
+                (f.SenderId == user.Id && f.ReceiverId == friend.Id) || 
+                (f.SenderId == friend.Id && f.ReceiverId == user.Id));
+            
+            if (friendRequest == null)
+            {
+                return Result.FailureResult("Friend request not found");
+            }
+
+            friendRequest.Status = FriendRequestStatus.Rejected;
+            await this.dbContext.SaveChangesAsync();
+            return Result.SuccessResult();
+        }
+        catch
+        {
+            return Result.FailureResult("Failed to reject friend request");
+        }
+    }
+
+    public async Task<Result<List<Core.User>>> GetFriends(int userId, int page, int pageSize)
+    {
+        try
+        {
+            List<User> friendModels = await (
+                    from f in this.dbContext.Friends
+                    join u in this.dbContext.Users on (f.userId1 == userId ? f.userId2 : f.userId1) equals u.Id
+                    where f.userId1 == userId || f.userId2 == userId
+                    select u)
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            
+            List<Core.User> friends = new List<Core.User>();
+            foreach (User friendModel in friendModels)
+            {
+                friends.Add(new Core.User
+                {
+                    Username = friendModel.Username,
+                    FirstName = friendModel.FirstName,
+                    LastName = friendModel.LastName,
+                    Email = friendModel.Email,
+                    Country = friendModel.Country,
+                    City = friendModel.City,
+                    Gender = friendModel.Gender
+                });
+            }
+
+            return Result<List<Core.User>>.SuccessResult(friends);
+        }
+        catch
+        {
+            return Result<List<Core.User>>.FailureResult("Failed to get friends");
+        }
+    }
+    
+    public async Task<Result<List<Core.User>>> GetPendingFriendRequests(int userId, int page, int pageSize)
+    {
+        try
+        {
+            List<User> senderModelds = await (
+                    from f in this.dbContext.FriendRequests
+                    join u in this.dbContext.Users on f.SenderId equals u.Id
+                    where f.ReceiverId == userId && f.Status == FriendRequestStatus.Pending
+                    select u)
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            
+            List<Core.User> senders = new List<Core.User>();
+            foreach (User senderModel in senderModelds)
+            {
+                senders.Add(new Core.User
+                {
+                    Username = senderModel.Username,
+                    FirstName = senderModel.FirstName,
+                    LastName = senderModel.LastName,
+                    Email = senderModel.Email,
+                    Country = senderModel.Country,
+                    City = senderModel.City,
+                    Gender = senderModel.Gender
+                });
+            }
+
+            return Result<List<Core.User>>.SuccessResult(senders);
+        }
+        catch
+        {
+            return Result<List<Core.User>>.FailureResult("Failed to get pending friend requests");
+        }
+    }
+}

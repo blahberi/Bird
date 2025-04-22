@@ -1,0 +1,14 @@
+/* CreatePost page specific styles */
+.create-post-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.create-post-card .card-header {
+    background-color: var(--gb-dark0-soft);
+    border-bottom: 1px solid var(--gb-dark1);
+}
+
+.form-control:focus {
+    border-color: var(--gb-bright-blue);
+    box-shadow: 0 0 0 0.2rem rgba(131, 165, 152, 0.25);
+}

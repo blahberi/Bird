@@ -1,0 +1,339 @@
+/* Gruvbox Theme for Bootstrap Components
+   This file contains all Bootstrap component overrides to implement
+   the Gruvbox color scheme across the application */
+
+:root {
+    /* Gruvbox Color Variables */
+    --gb-dark0-hard: #1d2021;
+    --gb-dark0: #282828;
+    --gb-dark0-soft: #3c3836;
+    --gb-dark1: #504945;
+    --gb-dark2: #665c54;
+    --gb-light0: #fbf1c7;
+    --gb-light1: #ebdbb2;
+    --gb-light2: #d5c4a1;
+    --gb-bright-red: #fb4934;
+    --gb-neutral-red: #cc241d;
+    --gb-bright-green: #b8bb26;
+    --gb-neutral-green: #98971a;
+    --gb-bright-yellow: #fabd2f;
+    --gb-neutral-yellow: #d79921;
+    --gb-bright-blue: #83a598;
+    --gb-neutral-blue: #458588;
+    --gb-bright-purple: #d3869b;
+    --gb-neutral-purple: #b16286;
+}
+
+/* Disable default Bootstrap transitions */
+.btn {
+    transition: none !important;
+}
+
+.btn:hover {
+    transition: all 0.15s ease-in-out !important;
+}
+
+/* Links & buttons */
+a,
+.btn-link {
+    color: var(--gb-neutral-blue);
+}
+
+a:hover {
+    color: var(--gb-bright-blue) !important;
+}
+
+/* Text colors */
+.text-primary {
+    color: var(--gb-bright-blue) !important;
+}
+
+.text-success {
+    color: var(--gb-bright-green) !important;
+}
+
+.text-warning {
+    color: var(--gb-bright-yellow) !important;
+}
+
+.text-danger {
+    color: var(--gb-bright-red) !important;
+}
+
+.text-info {
+    color: var(--gb-bright-purple) !important;
+}
+
+.text-muted {
+    color: var(--gb-light2) !important;
+    opacity: 0.7;
+}
+
+/* Card styling */
+.card {
+    background-color: var(--gb-dark1);
+    border-color: var(--gb-dark2);
+    color: var(--gb-light1);
+}
+
+/* Form controls */
+.form-control,
+.form-select,
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--gb-dark0-soft);
+    border-color: var(--gb-dark2);
+    color: var(--gb-light1);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--gb-bright-blue);
+    box-shadow: 0 0 0 0.2rem rgba(131, 165, 152, 0.25);
+}
+
+/* Modal styling */
+.modal-content,
+.modal-header,
+.modal-body,
+.modal-footer {
+    background-color: var(--gb-dark0-soft);
+    color: var(--gb-light1);
+    border-color: var(--gb-dark2);
+}
+
+.modal-title {
+    color: var(--gb-light1);
+}
+
+.modal-close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--gb-dark2);
+    transition: color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.modal-close-button:hover {
+    color: var(--gb-light1);
+    transform: scale(1.05);
+}
+
+/* Dropdown styling */
+.dropdown-menu {
+    background-color: var(--gb-dark1);
+    border: 1px solid var(--gb-dark2);
+}
+
+.dropdown-item {
+    background-color: var(--gb-dark1);
+    color: var(--gb-light1);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: var(--gb-neutral-blue) !important;
+    color: var(--gb-light1) !important;
+}
+
+/* Alert styling */
+.alert {
+    background-color: var(--gb-dark0-soft);
+    border: 1px solid var(--gb-dark2);
+    color: var(--gb-light1);
+}
+
+.alert-info {
+    border-left: 4px solid var(--gb-neutral-blue);
+}
+
+.alert-success {
+    border-left: 4px solid var(--gb-neutral-green);
+}
+
+.alert-warning {
+    border-left: 4px solid var(--gb-neutral-yellow);
+}
+
+.alert-danger {
+    border-left: 4px solid var(--gb-neutral-red);
+}
+
+/* Spinner styling */
+.spinner-border,
+.spinner-grow {
+    color: var(--gb-bright-blue) !important;
+}
+
+.spinner-border.text-success,
+.spinner-grow.text-success {
+    color: var(--gb-bright-green) !important;
+}
+
+.spinner-border.text-warning,
+.spinner-grow.text-warning {
+    color: var(--gb-bright-yellow) !important;
+}
+
+.spinner-border.text-danger,
+.spinner-grow.text-danger {
+    color: var(--gb-bright-red) !important;
+}
+
+.spinner-border.text-info,
+.spinner-grow.text-info {
+    color: var(--gb-bright-purple) !important;
+}
+
+/* Badge styling */
+.badge {
+    background-color: var(--gb-dark1);
+    color: var(--gb-light1);
+}
+
+.badge.bg-primary {
+    background-color: var(--gb-neutral-blue) !important;
+    color: var(--gb-light0);
+}
+
+.badge.bg-success {
+    background-color: var(--gb-neutral-green) !important;
+    color: var(--gb-light0);
+}
+
+.badge.bg-warning {
+    background-color: var(--gb-neutral-yellow) !important;
+    color: var(--gb-dark0);
+}
+
+.badge.bg-danger {
+    background-color: var(--gb-neutral-red) !important;
+    color: var(--gb-light0);
+}
+
+.badge.bg-info {
+    background-color: var(--gb-neutral-purple) !important;
+    color: var(--gb-light0);
+}
+
+.badge.bg-secondary {
+    background-color: var(--gb-dark2) !important;
+    color: var(--gb-light1);
+}
+
+/* Pagination styling */
+.pagination {
+    --bs-pagination-bg: var(--gb-dark0-soft);
+    --bs-pagination-color: var(--gb-light1);
+    --bs-pagination-border-color: var(--gb-dark2);
+    --bs-pagination-hover-bg: var(--gb-dark1);
+    --bs-pagination-hover-color: var(--gb-light0);
+    --bs-pagination-active-bg: var(--gb-neutral-blue);
+    --bs-pagination-active-border-color: var(--gb-bright-blue);
+    --bs-pagination-disabled-color: var(--gb-dark2);
+    --bs-pagination-disabled-bg: var(--gb-dark0-hard);
+    --bs-pagination-disabled-border-color: var(--gb-dark1);
+}
+
+.page-item.active .page-link {
+    background-color: var(--gb-neutral-blue);
+    border-color: var(--gb-bright-blue);
+    color: var(--gb-light0);
+}
+
+.page-link {
+    background-color: var(--gb-dark0-soft);
+    border-color: var(--gb-dark2);
+    color: var(--gb-light1);
+}
+
+.page-link:hover {
+    background-color: var(--gb-dark1);
+    border-color: var(--gb-dark2);
+    color: var(--gb-light0);
+}
+
+.page-link:focus {
+    box-shadow: 0 0 0 0.2rem rgba(69, 133, 136, 0.25);
+}
+
+.page-item.disabled .page-link {
+    background-color: var(--gb-dark0-hard);
+    border-color: var(--gb-dark1);
+    color: var(--gb-dark2);
+}
+
+/* Button styling */
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+    color: var(--gb-light0) !important;
+    background-color: var(--gb-neutral-blue) !important;
+    border-color: var(--gb-bright-blue) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+    background-color: var(--gb-bright-blue) !important;
+}
+
+/* Button overrides to ensure correct hover states */
+button.btn-primary:hover,
+a.btn-primary:hover,
+.btn-primary:hover,
+button.btn-outline-primary:hover,
+a.btn-outline-primary:hover,
+.btn-outline-primary:hover,
+button.btn-outline-secondary:hover,
+a.btn-outline-secondary:hover,
+.btn-outline-secondary:hover {
+    transition: all 0.2s ease-in-out;
+    color: var(--gb-light0) !important;
+}
+
+button.btn-primary:hover,
+a.btn-primary:hover,
+.btn-primary:hover {
+    background-color: var(--gb-bright-blue) !important;
+    border-color: var(--gb-neutral-blue) !important;
+}
+
+.btn-outline-primary {
+    color: var(--gb-neutral-blue);
+    border-color: var(--gb-neutral-blue);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:active,
+.btn-outline-primary:focus {
+    background-color: var(--gb-neutral-blue) !important;
+    border-color: var(--gb-bright-blue) !important;
+    color: var(--gb-light0) !important;
+}
+
+.btn-outline-secondary {
+    color: var(--gb-light2);
+    border-color: var(--gb-dark2);
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:active,
+.btn-outline-secondary:focus {
+    background-color: var(--gb-dark2) !important;
+    border-color: var(--gb-dark1) !important;
+    color: var(--gb-light0) !important;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-primary:focus,
+.btn-outline-primary:focus {
+    box-shadow: 0 0 0 0.15rem rgba(69, 133, 136, 0.5) !important;
+}
