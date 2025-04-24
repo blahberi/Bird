@@ -5,28 +5,28 @@ using Shared.DTOs.Posts;
 
 namespace Frontend.Pages.Posts;
 
-public partial class Posts : ComponentBase
+public partial class PostsBase : ComponentBase
 {
     [Inject]
-    private IPostsService PostsService { get; set; }
+    protected IPostsService PostsService { get; set; } = default!;
 
     [Inject]
-    private ILikesService LikesService { get; set; }
+    protected ILikesService LikesService { get; set; } = default!;
 
     [Inject]
-    private NavigationManager NavigationManager { get; set; }
+    protected NavigationManager NavigationManager { get; set; } = default!;
 
-    private List<PostResponse> posts;
-    private int currentPage = 0;
-    private int pageSize = 10;
-    private int totalPages = 1;
+    protected List<PostResponse> posts;
+    protected int currentPage = 0;
+    protected int pageSize = 10;
+    protected int totalPages = 1;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
     }
 
-    private async Task LoadPosts()
+    protected async Task LoadPosts()
     {
         Result<(List<PostResponse> Posts, int TotalCount)> result = await PostsService.GetPostsAsync(currentPage, pageSize);
         if (!result.Success || result.Value.Posts == null)
@@ -42,7 +42,7 @@ public partial class Posts : ComponentBase
         if (totalPages == 0) totalPages = 1;
     }
 
-    private async Task PreviousPage()
+    protected async Task PreviousPage()
     {
         if (currentPage > 0)
         {
@@ -51,24 +51,24 @@ public partial class Posts : ComponentBase
         }
     }
 
-    private async Task NextPage()
+    protected async Task NextPage()
     {
         currentPage++;
         await LoadPosts();
     }
 
-    private async Task GoToPage(int page)
+    protected async Task GoToPage(int page)
     {
         currentPage = page;
         await LoadPosts();
     }
 
-    private void CreateNewPost()
+    protected void CreateNewPost()
     {
         NavigationManager.NavigateTo("/posts/create");
     }
 
-    private void ViewPost(int id)
+    protected void ViewPost(int id)
     {
         NavigationManager.NavigateTo($"/posts/{id}");
     }

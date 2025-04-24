@@ -6,18 +6,18 @@ using Shared;
 
 namespace Frontend.Pages.Register;
 
-public partial class Register : ComponentBase
+public partial class RegisterBase : ComponentBase
 {
-    private RegisterModel registerModel = new();
-    private CaptchaComponent captchaComponent;
+    protected RegisterModel registerModel = new();
+    protected CaptchaComponent captchaComponent = default!;
 
     [Inject]
-    private IUserService UserService { get; set; } = default!;
+    protected IUserService UserService { get; set; } = default!;
 
     [Inject]
-    private NavigationManager NavigationManager { get; set; } = default!;
+    protected NavigationManager NavigationManager { get; set; } = default!;
 
-    private async Task HandleRegister()
+    protected async Task HandleRegister()
     {
         if (!captchaComponent.IsHuman)
         {

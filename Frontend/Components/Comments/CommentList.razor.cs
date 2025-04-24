@@ -6,26 +6,26 @@ using Shared.DTOs.Posts;
 
 namespace Frontend.Components.Comments;
 
-public partial class CommentList : ComponentBase
+public partial class CommentListBase : ComponentBase
 {
     [Parameter] public int PostId { get; set; }
     [Parameter] public EventCallback OnCommentsChanged { get; set; }
 
-    [Inject] private ICommentsService CommentsService { get; set; } = default!;
+    [Inject] protected ICommentsService CommentsService { get; set; } = default!;
 
     private const int PageSize = 10;
 
-    private List<CommentModel> comments = new();
-    private CommentCreation newComment = new();
-    private string? errorMessage;
-    private int currentPage;
-    private int totalCount;
+    protected List<CommentModel> comments = new();
+    protected CommentCreation newComment = new();
+    protected string? errorMessage;
+    protected int currentPage;
+    protected int totalCount;
 
-    private bool isLoading = true;
-    private bool isSubmitting;
-    private bool isLoadingMore;
+    protected bool isLoading = true;
+    protected bool isSubmitting;
+    protected bool isLoadingMore;
 
-    private bool HasMoreComments => this.comments.Count < this.totalCount;
+    protected bool HasMoreComments => this.comments.Count < this.totalCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -40,7 +40,7 @@ public partial class CommentList : ComponentBase
         }
     }
 
-    private async Task LoadComments()
+    protected async Task LoadComments()
     {
         this.isLoading = true;
         this.currentPage = 0;
@@ -49,7 +49,7 @@ public partial class CommentList : ComponentBase
         this.isLoading = false;
     }
 
-    private async Task LoadNextPage()
+    protected async Task LoadNextPage()
     {
         this.currentPage++;
         this.isLoadingMore = true;
@@ -57,7 +57,7 @@ public partial class CommentList : ComponentBase
         this.isLoadingMore = false;
     }
 
-    private async Task FetchComments()
+    protected async Task FetchComments()
     {
         this.errorMessage = null;
 
@@ -84,7 +84,7 @@ public partial class CommentList : ComponentBase
         }
     }
 
-    private async Task HandleSubmit()
+    protected async Task HandleSubmit()
     {
         this.isSubmitting = true;
         this.errorMessage = null;

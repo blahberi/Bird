@@ -3,17 +3,17 @@ using Microsoft.AspNetCore.Components;
 
 namespace Frontend.Components.AuthRedirect;
 
-public partial class AuthRedirect : ComponentBase
+public partial class AuthRedirectBase : ComponentBase
 {
     [Inject]
-    private NavigationManager NavigationManager { get; set; } = default!;
+    protected NavigationManager NavigationManager { get; set; } = default!;
 
     [Inject]
-    private IAuthService authService { get; set; } = default!;
+    protected IAuthService AuthService { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
-        if (!await authService.IsAuthorizedAsync)
+        if (!await AuthService.IsAuthorizedAsync)
         {
             NavigationManager.NavigateTo("/Login");
         }

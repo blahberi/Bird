@@ -5,7 +5,7 @@ using Shared.DTOs.Posts;
 
 namespace Frontend.Components.LikeButton;
 
-public partial class LikeButton : ComponentBase
+public partial class LikeButtonBase : ComponentBase
 {
     [Parameter]
     public int PostId { get; set; }
@@ -20,13 +20,13 @@ public partial class LikeButton : ComponentBase
     public bool Small { get; set; } = false;
 
     [Inject]
-    private ILikesService LikesService { get; set; } = default!;
+    protected ILikesService LikesService { get; set; } = default!;
 
-    private bool isLiked;
-    private int likesCount;
-    private bool isLoading;
+    protected bool isLiked;
+    protected int likesCount;
+    protected bool isLoading;
 
-    private bool IsLiked
+    protected bool IsLiked
     {
         get => this.isLiked;
         set
@@ -38,7 +38,7 @@ public partial class LikeButton : ComponentBase
         }
     }
 
-    private int LikesCount
+    protected int LikesCount
     {
         get => this.likesCount;
         set
@@ -51,7 +51,7 @@ public partial class LikeButton : ComponentBase
         }
     }
 
-    private bool IsLoading
+    protected bool IsLoading
     {
         get => this.isLoading;
         set
@@ -70,7 +70,7 @@ public partial class LikeButton : ComponentBase
         await LoadLikesCount();
     }
 
-    private async Task LoadLikesCount()
+    protected async Task LoadLikesCount()
     {
         try
         {
@@ -89,7 +89,7 @@ public partial class LikeButton : ComponentBase
         }
     }
 
-    private async Task ToggleLike()
+    protected async Task ToggleLike()
     {
         if (IsLoading) return;
 

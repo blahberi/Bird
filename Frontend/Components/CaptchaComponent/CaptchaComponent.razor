@@ -3,6 +3,8 @@
 @using Shared
 @using Shared.DTOs.Captcha
 
+@inherits CaptchaComponentBase
+
 <div class="captcha-container">
     <div class="recaptcha-box" @onclick="ShowCaptchaPopup">
         <div class="recaptcha-checkbox">

@@ -6,17 +6,17 @@ using Shared.DTOs;
 
 namespace Frontend.Pages.Login;
 
-public partial class Login : ComponentBase
+public partial class LoginBase : ComponentBase
 {
-    private LoginModel loginModel = new();
+    protected LoginModel loginModel = new();
 
     [Inject]
-    private NavigationManager NavigationManager { get; set; } = default!;
+    protected NavigationManager NavigationManager { get; set; } = default!;
 
     [Inject]
-    private IUserService UserService { get; set; } = default!;
+    protected IUserService UserService { get; set; } = default!;
 
-    private async Task HandleLogin()
+    protected async Task HandleLogin()
     {
         Result<UserLoginResponse> result = await UserService.LoginAsync(loginModel.Username, loginModel.Password);
         if (result.Success && result.Value != null)

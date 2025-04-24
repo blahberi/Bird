@@ -6,28 +6,28 @@ using Shared.DTOs.Posts;
 
 namespace Frontend.Pages.Posts.PostDetail;
 
-public partial class PostDetail : ComponentBase
+public partial class PostDetailBase : ComponentBase
 {
     [Parameter]
     public int Id { get; set; }
 
     [Inject]
-    private IPostsService PostsService { get; set; } = default!;
+    protected IPostsService PostsService { get; set; } = default!;
 
     [Inject]
-    private ILikesService LikesService { get; set; } = default!;
+    protected ILikesService LikesService { get; set; } = default!;
 
     [Inject]
-    private NavigationManager NavigationManager { get; set; } = default!;
+    protected NavigationManager NavigationManager { get; set; } = default!;
 
     [Inject]
-    private IJSRuntime JSRuntime { get; set; } = default!;
+    protected IJSRuntime JSRuntime { get; set; } = default!;
 
-    private PostResponse? post;
-    private bool loading = true;
-    private string? error;
-    private string? successMessage;
-    private bool showSuccessMessage = false;
+    protected PostResponse? post;
+    protected bool loading = true;
+    protected string? error;
+    protected string? successMessage;
+    protected bool showSuccessMessage = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -39,7 +39,7 @@ public partial class PostDetail : ComponentBase
         await LoadPost();
     }
 
-    private async Task LoadPost()
+    protected async Task LoadPost()
     {
         loading = true;
         error = null;
@@ -58,17 +58,17 @@ public partial class PostDetail : ComponentBase
         loading = false;
     }
 
-    private void GoBack()
+    protected void GoBack()
     {
         NavigationManager.NavigateTo("/posts");
     }
 
-    private async Task ScrollToComments()
+    protected async Task ScrollToComments()
     {
         await JSRuntime.InvokeVoidAsync("scrollToElement", "comments");
     }
 
-    private async Task ToggleLike()
+    protected async Task ToggleLike()
     {
         if (post == null) return;
 

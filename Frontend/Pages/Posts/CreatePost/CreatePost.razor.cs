@@ -5,19 +5,19 @@ using Shared.DTOs.Posts;
 
 namespace Frontend.Pages.Posts.CreatePost;
 
-public partial class CreatePost : ComponentBase
+public partial class CreatePostBase : ComponentBase
 {
     [Inject]
-    private NavigationManager NavigationManager { get; set; } = default!;
+    protected NavigationManager NavigationManager { get; set; } = default!;
 
     [Inject]
-    private IPostsService PostsService { get; set; } = default!;
+    protected IPostsService PostsService { get; set; } = default!;
 
-    private PostCreation postModel = new();
-    private bool isSubmitting = false;
-    private string? errorMessage;
+    protected PostCreation postModel = new();
+    protected bool isSubmitting = false;
+    protected string? errorMessage;
 
-    private async Task HandleSubmit()
+    protected async Task HandleSubmit()
     {
         isSubmitting = true;
         errorMessage = null;
@@ -44,7 +44,7 @@ public partial class CreatePost : ComponentBase
         }
     }
 
-    private void GoBack()
+    protected void GoBack()
     {
         NavigationManager.NavigateTo("/posts");
     }
