@@ -25,7 +25,7 @@ public class CommentsController : ControllerBase
     public async Task<IActionResult> AddComment([FromBody] CommentCreation commentCreation)
     {
         int userId = this.AuthorizeUser();
-        Content content = await this.postsService.GetContentByIdAsync(commentCreation.ContentId);
+        Content content = await this.postsService.GetContentById(commentCreation.ContentId);
 
         await this.postsService.AddCommentAsync(new Content
         {

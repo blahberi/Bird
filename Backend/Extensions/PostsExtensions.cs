@@ -6,21 +6,15 @@ namespace Backend.Extensions;
 
 public static class PostsExtensions
 {
-    public static async Task<Content> GetContentByIdAsync(this IPostsService postsService, int postId)
+    public static async Task<Content> GetPostById(this IPostsService postsService, int postId)
     {
-        Content result = await postsService.GetContentById(postId);
-        if (result.ParentId != null)
-        {
-            throw new Exception("Not a post");
-        }
-        return result;
+        return await postsService.GetContentById(postId);
     }
 
-    public static async Task<None> CreatePostAsync(this IPostsService postsService, Content post)
+    public static async Task CreatePostAsync(this IPostsService postsService, Content post)
     {
         post.ParentId = null;
         await postsService.CreateContentAsync(post);
-        return None.Value;
     }
 
     public static async Task<IEnumerable<Content>> GetAllPostsAsync(this IPostsService postsService, int page,

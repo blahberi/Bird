@@ -10,7 +10,7 @@ namespace Backend.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    public class UserController : AuthControllerBase
+    public class UserController : ControllerBase
     {
         private readonly IUserService userService;
 
