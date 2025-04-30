@@ -23,9 +23,13 @@ internal class UserService : IUserService
 
     public async Task<Result<None, Error>> RegisterUser(UserRegistartion registration)
     {
-        return await this.dbContext.Users
-            .AnyAsync(u => u.Username == registration.Username)
-            .ErrIfAsync(exists => exists, "Username already exists")
+        return await CheckModel(registration).ToAsync()
+            .AndThenAsync(async _ =>
+            {
+                return await this.dbContext.Users
+                    .AnyAsync(u => u.Username == registration.Username)
+                    .ErrIfAsync(exists => exists, "Username already exists");
+            })
             .AndThenAsync(async _ =>
             {
                 (string passwordHash, string salt) = HashPassword(registration.Password);

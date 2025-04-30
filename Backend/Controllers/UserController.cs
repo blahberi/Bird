@@ -1,10 +1,10 @@
-﻿using System.Runtime.CompilerServices;
-using Backend.Services;
+﻿using Backend.Services;
+using Backend.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Shared;
 using Shared.DTOs;
 using Backend.Core;
+using Shared.Extensions;
 
 namespace Backend.Controllers
 {
@@ -22,19 +22,8 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUserInfo()
         {
-            int? userId = this.AuthorizeUser();
-            if (userId == null)
-            {
-                return this.UnauthorizedUser();
-            }
-
-            Result<User> userResult = await this.userService.GetUserById(userId.Value);
-            if (!userResult.Success || userResult.Value == null)
-            {
-                return this.NotFound(new ErrorResponse { Error = userResult.Error });
-            }
-
-            User user = userResult.Value;
+            int userId = this.AuthorizeUser();
+            User user = await this.userService.GetUserById(userId);
             UserInfoResponse response = new UserInfoResponse
             {
                 Id = user.Id,
@@ -53,48 +42,21 @@ namespace Backend.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegistartion request)
         {
-            if (!this.ModelState.IsValid)
-            {
-                Dictionary<string, string> errors = this.ModelState
-                    .Where(x => x.Value.Errors.Any())
-                    .ToDictionary(
-                        x => x.Key,
-                        x => String.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
-                    );
-                return this.BadRequest(new ErrorResponse { Details = errors });
-            }
-
-            if (!this.VerifyUser())
+            if (!this.IsHuman())
             {
                 return this.UnverifiedUser();
             }
 
-            Result result = await this.userService.RegisterUser(request);
-            if (!result.Success)
-            {
-                return this.Conflict(new ErrorResponse { Error = result.Error });
-            }
-            return this.Ok();
+            return await this.userService.RegisterUser(request)
+                .ToActionResultAsync();
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLogin request)
         {
-            Result<string> result = await this.userService.LoginUser(request);
-
-            if (!result.Success || result.Value == null)
-            {
-                return this.Unauthorized(new ErrorResponse { Error = result.Error });
-            }
-
-            string token = result.Value;
-            return this.Ok(new UserLoginResponse { Token = token });
-        }
-
-        private bool VerifyUser()
-        {
-            bool? isHuman = this.HttpContext.Items["IsHuman"] as bool?;
-            return isHuman ?? false;
+            return await this.userService.LoginUser(request)
+                .MapAsync(async token => new UserLoginResponse {Token = token})
+                .ToActionResultAsync();
         }
 
         private UnauthorizedObjectResult UnverifiedUser()

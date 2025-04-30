@@ -6,8 +6,8 @@ namespace Backend.Services
 {
     public interface IUserService
     {
-        Task RegisterUser(UserRegistartion registration);
-        Task<string> LoginUser(UserLogin request);
+        Task<Result<None, Error>> RegisterUser(UserRegistartion registration);
+        Task<Result<string, Error>> LoginUser(UserLogin request);
         Task<User> GetUserByUsername(string username);
         Task<User> GetUserById(int id);
     }

@@ -7,7 +7,7 @@ public interface ICaptchaService
 {
     Task<byte[]> GenerateCaptchaImage(string code);
     string GenerateCaptchaToken(string code);
-    Result<string, Error> ValidateAnswer(string token, string answer, out string? verificationToken);
+    Result<string, Error> ValidateAnswer(string token, string answer);
     bool ValidateVerificationToken(string token);
     string GenerateCaptchaCode();
 }

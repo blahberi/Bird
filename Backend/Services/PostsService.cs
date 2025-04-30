@@ -16,44 +16,50 @@ internal class PostsService : IPostsService
         this.dbContext = dbContext;
     }
 
-    public async Task<Result<Content, Error>> GetContentById(int id)
+    public async Task<Content> GetContentById(int id)
     {
-        return await this.dbContext.Contents
+        Content? content = await this.dbContext.Contents
             .Include(c => c.User)
             .Include(c => c.Likes)
             .ThenInclude(l => l.User)
-            .FirstOrDefaultAsync(c => c.Id == id)
-            .ToResultAsync("Content not found");
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (content == null)
+        {
+            throw new Exception("Content not found");
+        }
+
+        return content;
     }
 
-    public async Task<Result<None, Error>> CreateContentAsync(Content content)
+    public async Task CreateContentAsync(Content content)
     {
         await this.dbContext.Contents.AddAsync(content);
         await this.dbContext.SaveChangesAsync();
-        return None.Value.ToOkResult();
     }
 
-    public async Task<Result<IEnumerable<Content>, Error>> GetContentsAsync(ContentFilter filter, ContentOrder order, int page, int pageSize)
+    public async Task<IEnumerable<Content>> GetContentsAsync(ContentFilter filter, ContentOrder order, int page, int pageSize)
     {
         IQueryable<Content> query = this.dbContext.Contents
             .Include(c => c.User)
             .Include(c => c.Likes)
             .ThenInclude(l => l.User)
             .Where(filter);
+
         query = order(query);
+
         IEnumerable<Content> contents = await query
             .Skip(page * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-        return contents.ToEnumerableResult("No contents found");
+        return contents;
     }
 
-    public async Task<Result<int, Error>> GetContentCountAsync(ContentFilter filter)
+    public async Task<int> GetContentCountAsync(ContentFilter filter)
     {
         return await this.dbContext.Contents
             .Where(filter)
-            .CountAsync()
-            .ToOkResultAsync();
+            .CountAsync();
     }
 }

@@ -1,7 +1,4 @@
-using Backend.Core;
 using Microsoft.AspNetCore.Mvc;
-using Shared;
-using Shared.Extensions;
 
 namespace Backend.Extensions;
 
@@ -14,5 +11,15 @@ public static class ControllerExtensions
             throw new UnauthorizedAccessException();
         }
         return (int)controller.HttpContext.Items["User"]!;
+    }
+
+    public static bool IsHuman(this ControllerBase controller)
+    {
+        if (!controller.HttpContext.Items.ContainsKey("IsHuman"))
+        {
+            return false;
+        }
+
+        return controller.HttpContext.Items["IsHuman"] is true;
     }
 }

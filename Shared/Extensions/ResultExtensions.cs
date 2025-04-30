@@ -104,15 +104,6 @@ public static class ResultsExtensions
         };
     }
 
-    public static Result<(T, U), E> AndThenWith<T, U, E>(this Result<T, E> result, Func<T, Result<U, E>> binder)
-    {
-        return result
-            .AndThen(value =>
-            {
-                return binder(value).Map(u => (value, u));
-            });
-    }
-
     public static Result<T, E> Ensure<T, E>(this Result<T, E> result, Func<T, bool> predicate, Func<E> errorFunc)
     {
         return result switch

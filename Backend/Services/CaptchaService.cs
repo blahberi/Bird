@@ -61,24 +61,22 @@ internal class CaptchaService : ICaptchaService
         return this.tokenHandler.WriteToken(token);
     }
 
-    public bool ValidateAnswer(string token, string answer, out string? verificationToken)
+    public Result<string, Error> ValidateAnswer(string token, string answer)
     {
         try
         {
-            ClaimsPrincipal principal = this.tokenHandler.ValidateToken(token, this.validationParameters, out SecurityToken validatedToken);
+            ClaimsPrincipal principal = this.tokenHandler.ValidateToken(token, this.validationParameters, out SecurityToken _);
             string? challengeProof = principal.FindFirst("challengeProof")?.Value;
             if (this.GenerateChallengeProof(answer) != challengeProof)
             {
-                verificationToken = null;
-                return false;
+                return Error.CreateErr<string>("Invalid captcha");
             }
-            verificationToken = this.GenerateVerificationToken();
-            return true;
+
+            return this.GenerateVerificationToken().ToOkResult();
         }
         catch
         {
-            verificationToken = null;
-            return false;
+            return Error.CreateErr<string>("Invalid captcha");
         }
     }
 

@@ -37,8 +37,8 @@ public class CaptchaController : ControllerBase
         string token = request.Token;
         string answer = request.Answer;
         
-        return this.captchaService.ValidateAnswer(token, answer, out string? verificationToken)
-            .Map(result => new VerificationTokenDto{Token = result})
+        return this.captchaService.ValidateAnswer(token, answer)
+            .Map(verificationToken => new VerificationTokenDto{Token = verificationToken})
             .ToActionResult();
     }
 }

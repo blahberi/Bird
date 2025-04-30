@@ -1,8 +1,6 @@
-using Backend.Core;
 using Backend.Extensions;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using Shared;
 using Shared.DTOs.Posts;
 
 namespace Backend.Controllers;

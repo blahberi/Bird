@@ -2,6 +2,10 @@ namespace Shared.Extensions;
 
 public static class AsyncResultExtensions
 {
+    public static async Task<Result<T, E>> ToAsync<T, E>(this Result<T, E> result) {
+        return result;
+    }
+
     public static async Task<Result<U, E>> MapAsync<T, U, E>(this Task<Result<T, E>> result, Func<T, Task<U>> mapper)
     {
         return result switch
@@ -102,16 +106,6 @@ public static class AsyncResultExtensions
             Result<T, E>.Err err => Result<U, E>.CreateErr(err.Error),
             _ => throw new InvalidOperationException("Unexpected Result state")
         };
-    }
-
-    public static async Task<Result<(T, U), E>> AndThenWithAsync<T, U, E>(this Task<Result<T, E>> resultTask,
-        Func<T, Task<Result<U, E>>> binder)
-    {
-        return await resultTask
-            .AndThenAsync(async value =>
-            {
-                return await binder(value).MapAsync(async u => (value, u));
-            });
     }
 
     public static async Task<Result<T, E>> EnsureAsync<T, E>(this Task<Result<T, E>> resultTask, Func<T, bool> predicate, Func<E> errorFunc)
