@@ -4,6 +4,7 @@ using System.Text.Json;
 using Shared;
 using Shared.DTOs;
 using Shared.Extensions;
+using Frontend.Core;
 
 namespace Frontend.Services
 {
@@ -18,7 +19,7 @@ namespace Frontend.Services
             this.jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
 
-        public async Task<Result<T>> GetAsync<T>(string path)
+        public async Task<Result<T, Error>> GetAsync<T>(string path)
         {
             try
             {
@@ -27,11 +28,11 @@ namespace Frontend.Services
             }
             catch
             {
-                return Result<T>.FailureResult("Failed to connect to the server");
+                return Error.CreateErrResult<T>("Failed to connect to the server");
             }
         }
 
-        public async Task<Result<T>> PostAsync<T>(string path, object? data)
+        public async Task<Result<T, Error>> PostAsync<T>(string path, object? data)
         {
             try
             {
@@ -42,11 +43,11 @@ namespace Frontend.Services
             }
             catch
             {
-                return Result<T>.FailureResult("Failed to connect to the server");
+                return Error.CreateErrResult<T>("Failed to connect to the server");
             }
         }
 
-        public async Task<Result> PostAsync(string path, object? data)
+        public async Task<Result<None, Error>> PostAsync(string path, object? data)
         {
             try
             {
@@ -57,11 +58,11 @@ namespace Frontend.Services
             }
             catch
             {
-                return Result.FailureResult("Failed to connect to the server");
+                return Error.CreateErrResult<None>("Failed to connect to the server");
             }
         }
 
-        public async Task<Result<T>> PutAsync<T>(string path, object? data)
+        public async Task<Result<T, Error>> PutAsync<T>(string path, object? data)
         {
             try
             {
@@ -72,11 +73,11 @@ namespace Frontend.Services
             }
             catch
             {
-                return Result<T>.FailureResult("Failed to connect to the server");
+                return Error.CreateErrResult<T>("Failed to connect to the server");
             }
         }
 
-        public async Task<Result> PutAsync(string path, object? data)
+        public async Task<Result<None, Error>> PutAsync(string path, object? data)
         {
             try
             {
@@ -87,11 +88,11 @@ namespace Frontend.Services
             }
             catch
             {
-                return Result.FailureResult("Failed to connect to the server");
+                return Error.CreateErrResult<None>("Failed to connect to the server");
             }
         }
 
-        public async Task<Result<T>> DeleteAsync<T>(string path)
+        public async Task<Result<T, Error>> DeleteAsync<T>(string path)
         {
             try
             {
@@ -100,11 +101,11 @@ namespace Frontend.Services
             }
             catch
             {
-                return Result<T>.FailureResult("Failed to connect to the server");
+                return Error.CreateErrResult<T>("Failed to connect to the server");
             }
         }
 
-        public async Task<Result> DeleteAsync(string path)
+        public async Task<Result<None, Error>> DeleteAsync(string path)
         {
             try
             {
@@ -113,11 +114,11 @@ namespace Frontend.Services
             }
             catch
             {
-                return Result.FailureResult("Failed to connect to the server");
+                return Error.CreateErrResult<None>("Failed to connect to the server");
             }
         }
 
-        private async Task<Result<T>> HandleResponse<T>(HttpResponseMessage response)
+        private async Task<Result<T, Error>> HandleResponse<T>(HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
             {
@@ -130,27 +131,27 @@ namespace Frontend.Services
                 if (data == null)
                 {
                     Console.WriteLine($"Failed to deserialize response: {json}");
-                    return Result<T>.FailureResult("Failed to process server response");
+                    return Error.CreateErrResult<T>("Failed to process server response");
                 }
-                return Result<T>.SuccessResult(data);
+                return Error.CreateOkResult(data);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Deserialization error: {ex}, JSON: {json}");
-                return Result<T>.FailureResult("Failed to process server response");
+                return Error.CreateErrResult<T>("Failed to process server response");
             }
         }
 
-        private async Task<Result<None, string>> HandleResponse(HttpResponseMessage response)
+        private async Task<Result<None, Error>> HandleResponse(HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
             {
                 return await HandleErrorResponse<None>(response);
             }
-            return Result<None, string>.CreateOk(None.Value);
+            return Error.CreateOkResult(None.Value);
         }
 
-        private async Task<Result<T, string>> HandleErrorResponse<T>(HttpResponseMessage response)
+        private async Task<Result<T, Error>> HandleErrorResponse<T>(HttpResponseMessage response)
         {
             string json = await response.Content.ReadAsStringAsync();
             try
@@ -159,23 +160,20 @@ namespace Frontend.Services
                 if (errorResponse == null)
                 {
                     Console.WriteLine($"Unknown error: {response.StatusCode}, Content: {json}");
-                    return Result<T, string>.CreateErr("An error occurred while processing your request");
+                    return Error.CreateErrResult<T>("An error occurred while processing your request");
                 }
-                if (errorResponse.Details != null && errorResponse.Details.Count > 0)
+                if (string.IsNullOrWhiteSpace(errorResponse.Error) && errorResponse.Details.Count == 0)
                 {
-                    return Result<T, string>.CreateErr(errorResponse.Details);
+                    Console.WriteLine($"Empty error response: {response.StatusCode}, Content: {json}");
+                    return Error.CreateErrResult<T>("An error occurred while processing your request");
                 }
-                if (errorResponse.Error != null)
-                {
-                    return Result<T, string>.CreateErr(errorResponse.Error);
-                }
-                Console.WriteLine($"Empty error response: {response.StatusCode}, Content: {json}");
-                return Result<T, string>.CreateErr("An error occurred while processing your request");
+
+                return Error.CreateErrResult<T>(errorResponse.Error, errorResponse.Details);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing error response: {ex}, StatusCode: {response.StatusCode}, Content: {json}");
-                return Result<T, string>.CreateErr("An unexpected error occurred");
+                return Error.CreateErrResult<T>("An unexpected error occurred");
             }
         }
     }

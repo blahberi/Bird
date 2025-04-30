@@ -35,14 +35,14 @@ internal class CaptchaService : ICaptchaService
 
         this.signingCredentials = new SigningCredentials(new SymmetricSecurityKey(this.jwtSecret), SecurityAlgorithms.HmacSha256Signature);
     }
-    public async Task<Result<byte[], Error>> GenerateCaptchaImage(string code)
+    public async Task<byte[]> GenerateCaptchaImage(string code)
     {
-        return await this.captchaGeneratorClient
-            .GetAsync($"GenerateCaptcha/{code}")!
-            .ErrIfAsync(response => !response.IsSuccessStatusCode, "Failed to generate captcha")
-            .AndThenAsync(async response => await response.Content
-                .ReadAsByteArrayAsync()
-                .ToOkResultAsync());
+        HttpResponseMessage response = await this.captchaGeneratorClient.GetAsync($"GenerateCaptcha/{code}");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception("Failed to generate captcha");
+        }
+        return await response.Content.ReadAsByteArrayAsync();
     }
 
     public string GenerateCaptchaToken(string code)

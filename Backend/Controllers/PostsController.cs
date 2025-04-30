@@ -86,7 +86,7 @@ public class PostsController : ControllerBase
     }
     private async Task<Result<PostResponse, Error>> GetPostById(int userId, int postId)
     {
-        return await this.postsService.GetPostByIdAsync(postId)
+        return await this.postsService.GetContentByIdAsync(postId)
             .AndThenAsync(async post =>
             {
                 Result<bool, Error> likedResult = await this.likesService.HasUserLikedContentAsync(postId, userId);

@@ -13,13 +13,18 @@ public class Error
         this.Details = details;
     }
 
-    public static Result<T, Error> CreateOk<T>(T value)
+    public static Result<T, Error> CreateOkResult<T>(T value)
     {
         return Result<T, Error>.CreateOk(value);
     }
-    
-    public static Result<T, Error> CreateErr<T>(string message)
+
+    public static Result<T, Error> CreateErrResult<T>(string message)
     {
         return Result<T, Error>.CreateErr(new Error(message, new Dictionary<string, string>()));
+    }
+
+    public static Result<T, Error> CreateErrResult<T>(string message, IDictionary<string, string> details)
+    {
+        return Result<T, Error>.CreateErr(new Error(message, details));
     }
 }

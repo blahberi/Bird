@@ -9,10 +9,10 @@ public delegate IOrderedQueryable<Like> LikeOrder(IQueryable<Like> likes);
 
 public interface ILikesService
 {
-    Task<Result<None, Error>> LikeContentAsync(int contentId, int userId);
-    Task<Result<None, Error>> UnlikeContentAsync(int contentId, int userId);
-    Task<Result<bool, Error>> HasUserLikedContentAsync(int contentId, int userId);
-    Task<Result<IEnumerable<bool>, Error>> HasUserLikedContentsAsync(int userId, IEnumerable<int> contentIds);
-    Task<Result<IEnumerable<Like>, Error>> GetLikesAsync(LikeFilter filter, LikeOrder order, int page, int pageSize);
-    Task<Result<int, Error>> GetLikesCountAsync(LikeFilter filter);
+    Task LikeContentAsync(int contentId, int userId);
+    Task UnlikeContentAsync(int contentId, int userId);
+    Task<bool> HasUserLikedContentAsync(int contentId, int userId);
+    Task<IEnumerable<bool>> HasUserLikedContentsAsync(int userId, IEnumerable<int> contentIds);
+    Task<IEnumerable<Like>> GetLikesAsync(LikeFilter filter, LikeOrder order, int page, int pageSize);
+    Task<int> GetLikesCountAsync(LikeFilter filter);
 } 

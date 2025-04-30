@@ -1,8 +1,11 @@
+using Backend.Core;
+using Backend.Extensions;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
 using Shared.DTOs;
 using Shared.DTOs.Captcha;
+using Shared.Extensions;
 
 namespace Backend.Controllers;
 
@@ -21,13 +24,9 @@ public class CaptchaController : ControllerBase
     public async Task<IActionResult> GetCaptcha()
     {
         string code = this.captchaService.GenerateCaptchaCode();
-        Result<byte[]> result = await this.captchaService.GenerateCaptchaImage(code);
-        if (!result.Success || result.Value == null)
-        {
-            return this.BadRequest(new ErrorResponse{ Error = result.Error });
-        }
-        
-        string image = Convert.ToBase64String(result.Value);
+        byte[] result = await this.captchaService.GenerateCaptchaImage(code);
+
+        string image = Convert.ToBase64String(result);
         string token = this.captchaService.GenerateCaptchaToken(code);
         return this.Ok(new CaptchaDto{ Image = image, Token = token });
     }
@@ -38,12 +37,8 @@ public class CaptchaController : ControllerBase
         string token = request.Token;
         string answer = request.Answer;
         
-        if (!this.captchaService.ValidateAnswer(token, answer, out string? verificationToken) || 
-            verificationToken == null)
-        {
-            return this.BadRequest(new ErrorResponse{ Error = "Incorrect answer" });
-        }
-        
-        return this.Ok(new VerificationTokenDto{Token = verificationToken});
+        return this.captchaService.ValidateAnswer(token, answer, out string? verificationToken)
+            .Map(result => new VerificationTokenDto{Token = result})
+            .ToActionResult();
     }
 }

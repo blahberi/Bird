@@ -2,7 +2,7 @@
 {
     public class ErrorResponse : Response
     {
-        public string? Error { get; set; }
-        public IDictionary<string, string>? Details { get; set; }
+        public string Error { get; set; } = string.Empty;
+        public IDictionary<string, string> Details { get; set; } = new Dictionary<string, string>();
     }
 }

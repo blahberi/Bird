@@ -1,3 +1,4 @@
+using Frontend.Core;
 using Shared;
 using Shared.DTOs.Captcha;
 
@@ -16,6 +17,6 @@ public interface ICaptchaService
     void SetCaptchaToken(string token);
     void SetVerificationToken(string token);
 
-    Task<Result<CaptchaDto, string>> GetCaptchaAsync();
-    Task<Result<VerificationTokenDto, string>> VerifyCaptchaAsync(string captchaToken, string answer);
+    Task<Result<CaptchaDto, Error>> GetCaptchaAsync();
+    Task<Result<VerificationTokenDto, Error>> VerifyCaptchaAsync(string captchaToken, string answer);
 }

@@ -24,60 +24,44 @@ public class CommentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddComment([FromBody] CommentCreation commentCreation)
     {
-        return await this
-            .AuthorizeUser()
-            .AndThenAsync(async userId =>
-            {
-                Content comment = new Content
-                {
-                    UserId = userId,
-                    ParentId = commentCreation.ContentId,
-                    PostId = commentCreation.PostId,
-                    ContentText = commentCreation.Content,
-                    Title = null
-                };
+        int userId = this.AuthorizeUser();
+        Content content = await this.postsService.GetContentByIdAsync(commentCreation.ContentId);
 
-                return await this.postsService.AddCommentAsync(comment)
-                    .MapAsync<None, object, Error>(async _ => new { id = comment.Id });
-            })
-            .ToActionResultAsync();
+        await this.postsService.AddCommentAsync(new Content
+        {
+            UserId = userId,
+            ParentId = content.Id,
+            PostId = content.PostId,
+            ContentText = commentCreation.Content,
+            Title = null
+        });
+
+        return this.Ok();
     }
 
     [HttpGet("post/{contentId}")]
     public async Task<IActionResult> GetPostComments([FromQuery] int pageNumber, [FromQuery] int pageSize, int contentId)
     {
-        return await this
-            .AuthorizeUser()
-            .AndThenAsync(async _ =>
-            {
-                return await this.postsService.GetCommentsByPostIdAsync(contentId, pageNumber, pageSize);
-            })
-            .AndThenAsync(async comments =>
-            {
-                return comments.Select(comment => new CommentResponse
-                {
-                    Id = comment.Id,
-                    Content = comment.ContentText,
-                    UserId = comment.UserId,
-                    UserName = comment.User.Username,
-                    ContentId = comment.ParentId ?? 0,
-                    CreatedAt = comment.CreatedAt,
-                    UpdatedAt = comment.UpdatedAt,
-                    LikesCount = comment.Likes.Count
-                }).ToOkResult();
-            })
-            .AndThenAsync(async responses =>
-            {
-                return await this.postsService.GetCommentsCountByPostIdAsync(contentId)
-                    .AndThenAsync(async count =>
-                    {
-                        return new ListCommentResponse
-                        {
-                            Comments = responses,
-                            TotalCount = count
-                        }.ToOkResult();
-                    });
-            })
-            .ToActionResultAsync();
+        int userId = this.AuthorizeUser();
+
+        IEnumerable<Content> comments = await this.postsService.GetCommentsByPostIdAsync(contentId, pageNumber, pageSize);
+        IEnumerable<CommentResponse> commentResponses = comments.Select(comment => new CommentResponse
+        {
+            Id = comment.Id,
+            Content = comment.ContentText,
+            UserId = comment.UserId,
+            UserName = comment.User.Username,
+            ContentId = comment.ParentId ?? 0,
+            CreatedAt = comment.CreatedAt,
+            UpdatedAt = comment.UpdatedAt,
+        });
+
+        int totalCount = await this.postsService.GetCommentsCountByPostIdAsync(contentId);
+
+        return this.Ok(new ListCommentResponse
+        {
+            Comments = commentResponses,
+            TotalCount = totalCount
+        });
     }
 }
