@@ -6,7 +6,7 @@ using Shared.DTOs;
 
 namespace Frontend.Pages.Login;
 
-public partial class LoginBase : ComponentBase
+public class LoginBase : ComponentBase
 {
     protected LoginModel loginModel = new();
 

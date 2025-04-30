@@ -6,7 +6,7 @@ using Shared;
 
 namespace Frontend.Pages.Register;
 
-public partial class RegisterBase : ComponentBase
+public class RegisterBase : ComponentBase
 {
     protected RegisterModel registerModel = new();
     protected CaptchaComponent captchaComponent = default!;

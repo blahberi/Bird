@@ -16,6 +16,6 @@ public interface ICaptchaService
     void SetCaptchaToken(string token);
     void SetVerificationToken(string token);
 
-    Task<Result<CaptchaDto>> GetCaptchaAsync();
-    Task<Result<VerificationTokenDto>> VerifyCaptchaAsync(string captchaToken, string answer);
+    Task<Result<CaptchaDto, string>> GetCaptchaAsync();
+    Task<Result<VerificationTokenDto, string>> VerifyCaptchaAsync(string captchaToken, string answer);
 }

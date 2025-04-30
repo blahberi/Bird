@@ -1,10 +1,12 @@
 ﻿using Backend.DataAccess;
+using Backend.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Shared;
 using Shared.DTOs;
 using System.Security.Cryptography;
 using System.Text;
 using Backend.Core;
+using Shared.Extensions;
 
 namespace Backend.Services;
 
@@ -19,106 +21,63 @@ internal class UserService : IUserService
         this.dbContext = dbContext;
     }
 
-    public async Task<Result> RegisterUser(UserRegistartion registration)
+    public async Task<Result<None, Error>> RegisterUser(UserRegistartion registration)
     {
-        try
-        {
-            if (await this.dbContext.Users.AnyAsync(u => u.Username == registration.Username))
+        return await this.dbContext.Users
+            .AnyAsync(u => u.Username == registration.Username)
+            .ErrIfAsync(exists => exists, "Username already exists")
+            .AndThenAsync(async _ =>
             {
-                return Result.FailureResult("Username already exists");
-            }
+                (string passwordHash, string salt) = HashPassword(registration.Password);
+                User user = new User
+                {
+                    Username = registration.Username,
+                    PasswordHash = passwordHash,
+                    PasswordSalt = salt,
+                    FirstName = registration.FirstName,
+                    LastName = registration.LastName,
+                    Email = registration.Email,
+                    Country = registration.Country,
+                    City = registration.City,
+                    Gender = registration.Gender
+                };
 
-            (string passwordHash, string salt) = HashPassword(registration.Password);
-            User user = new User
-            {
-                Username = registration.Username,
-                PasswordHash = passwordHash,
-                PasswordSalt = salt,
-                FirstName = registration.FirstName,
-                LastName = registration.LastName,
-                Email = registration.Email,
-                Country = registration.Country,
-                City = registration.City,
-                Gender = registration.Gender
-            };
-
-            await this.dbContext.Users.AddAsync(user);
-            await this.dbContext.SaveChangesAsync();
-            return Result.SuccessResult();
-        }
-        catch (Exception e)
-        {
-            // Log the exception
-            Console.WriteLine($"Error registering user: {e}");
-            return Result.FailureResult("An error occurred while registering the user");
-        }
+                await this.dbContext.Users.AddAsync(user);
+                await this.dbContext.SaveChangesAsync();
+                return None.Value.ToOkResult();
+            });
     }
 
-    public async Task<Result<string>> LoginUser(UserLogin login)
+    public async Task<Result<string, Error>> LoginUser(UserLogin login)
     {
-        try
-        {
-            User? user = await this.dbContext.Users.FirstOrDefaultAsync(u => u.Username == login.Username);
-            if (user == null)
+        return await this.dbContext.Users
+            .FirstOrDefaultAsync(u => u.Username == login.Username)
+            .ToResultAsync("Invalid username or password")
+            .AndThenAsync(async user =>
             {
-                return Result<string>.FailureResult("Invalid username or password");
-            }
+                string hash = ComputeHash(login.Password, user.PasswordSalt);
+                if (hash != user.PasswordHash)
+                {
+                    return Error.CreateErr<string>("Invalid username or password");
+                }
 
-            string hash = ComputeHash(login.Password, user.PasswordSalt);
-            if (hash != user.PasswordHash)
-            {
-                return Result<string>.FailureResult("Invalid username or password");
-            }
-
-            string token = this.authService.GenerateToken(user.Id);
-
-            return Result<string>.SuccessResult(token);
-        }
-        catch (Exception e)
-        {
-            // Log the exception
-            Console.WriteLine($"Error logging in user: {e}");
-            return Result<string>.FailureResult("An error occurred during login");
-        }
+                string token = this.authService.GenerateToken(user.Id);
+                return Error.CreateOk(token);
+            });
     }
 
-    public async Task<Result<User>> GetUserByUsername(string username)
+    public async Task<Result<User, Error>> GetUserByUsername(string username)
     {
-        try
-        {
-            User? user = await this.dbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
-            if (user == null)
-            {
-                return Result<User>.FailureResult("User not found");
-            }
-
-            return Result<User>.SuccessResult(user);
-        }
-        catch (Exception e)
-        {
-            // Log the exception
-            Console.WriteLine($"Error getting user by username: {e}");
-            return Result<User>.FailureResult("An error occurred while retrieving the user");
-        }
+        return await this.dbContext.Users
+            .FirstOrDefaultAsync(u => u.Username == username)
+            .ToResultAsync("User not found");
     }
 
-    public async Task<Result<User>> GetUserById(int id)
+    public async Task<Result<User, Error>> GetUserById(int id)
     {
-        try
-        {
-            User? user = await this.dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null)
-            {
-                return Result<User>.FailureResult("User not found");
-            }
-            return Result<User>.SuccessResult(user);
-        }
-        catch (Exception e)
-        {
-            // Log the exception
-            Console.WriteLine($"Error getting user by id: {e}");
-            return Result<User>.FailureResult("An error occurred while retrieving the user");
-        }
+        return await this.dbContext.Users
+            .FirstOrDefaultAsync(u => u.Id == id)
+            .ToResultAsync("User not found");
     }
 
     private static (string, string) HashPassword(string password)

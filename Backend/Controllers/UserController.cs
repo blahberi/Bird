@@ -61,7 +61,7 @@ namespace Backend.Controllers
                         x => x.Key,
                         x => String.Join(", ", x.Value.Errors.Select(e => e.ErrorMessage))
                     );
-                return this.BadRequest(new ErrorResponse { Errors = errors });
+                return this.BadRequest(new ErrorResponse { Details = errors });
             }
 
             if (!this.VerifyUser())

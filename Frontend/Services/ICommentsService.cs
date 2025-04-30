@@ -5,6 +5,6 @@ namespace Frontend.Services;
 
 public interface ICommentsService
 {
-    Task<Result> AddCommentAsync(CommentCreation commentCreation);
-    Task<Result<(List<CommentResponse> Comments, int TotalCount)>> GetCommentsByPostIdAsync(int postId, int pageNumber, int pageSize);
+    Task<Result<None, string>> AddCommentAsync(CommentCreation commentCreation);
+    Task<Result<List<ListCommentResponse>, string>> GetCommentsByPostIdAsync(int postId, int pageNumber, int pageSize);
 }

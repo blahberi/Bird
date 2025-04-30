@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Shared;
 using Shared.DTOs;
+using Shared.Extensions;
 
 namespace Frontend.Services
 {
@@ -140,16 +141,16 @@ namespace Frontend.Services
             }
         }
 
-        private async Task<Result> HandleResponse(HttpResponseMessage response)
+        private async Task<Result<None, string>> HandleResponse(HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
             {
-                return await HandleErrorResponse<int>(response);
+                return await HandleErrorResponse<None>(response);
             }
-            return Result.SuccessResult();
+            return Result<None, string>.CreateOk(None.Value);
         }
 
-        private async Task<Result<T>> HandleErrorResponse<T>(HttpResponseMessage response)
+        private async Task<Result<T, string>> HandleErrorResponse<T>(HttpResponseMessage response)
         {
             string json = await response.Content.ReadAsStringAsync();
             try
@@ -158,23 +159,23 @@ namespace Frontend.Services
                 if (errorResponse == null)
                 {
                     Console.WriteLine($"Unknown error: {response.StatusCode}, Content: {json}");
-                    return Result<T>.FailureResult("An error occurred while processing your request");
+                    return Result<T, string>.CreateErr("An error occurred while processing your request");
                 }
-                if (errorResponse.Errors != null && errorResponse.Errors.Count > 0)
+                if (errorResponse.Details != null && errorResponse.Details.Count > 0)
                 {
-                    return Result<T>.FailureResult(errorResponse.Errors);
+                    return Result<T, string>.CreateErr(errorResponse.Details);
                 }
                 if (errorResponse.Error != null)
                 {
-                    return Result<T>.FailureResult(errorResponse.Error);
+                    return Result<T, string>.CreateErr(errorResponse.Error);
                 }
                 Console.WriteLine($"Empty error response: {response.StatusCode}, Content: {json}");
-                return Result<T>.FailureResult("An error occurred while processing your request");
+                return Result<T, string>.CreateErr("An error occurred while processing your request");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing error response: {ex}, StatusCode: {response.StatusCode}, Content: {json}");
-                return Result<T>.FailureResult("An unexpected error occurred");
+                return Result<T, string>.CreateErr("An unexpected error occurred");
             }
         }
     }

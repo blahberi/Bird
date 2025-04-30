@@ -2,6 +2,6 @@ namespace Shared.DTOs.Posts;
 
 public class ListPostResponse : Response
 {
-    public List<PostResponse> Posts { get; set; } = new();
+    public IEnumerable<PostResponse> Posts { get; set; } = new List<PostResponse>();
     public int TotalCount { get; set; }
 }

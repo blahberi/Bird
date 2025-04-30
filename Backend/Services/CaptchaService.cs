@@ -2,8 +2,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Backend.Core;
+using Backend.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using Shared;
+using Shared.Extensions;
 
 namespace Backend.Services;
 
@@ -32,15 +35,14 @@ internal class CaptchaService : ICaptchaService
 
         this.signingCredentials = new SigningCredentials(new SymmetricSecurityKey(this.jwtSecret), SecurityAlgorithms.HmacSha256Signature);
     }
-    public async Task<Result<byte[]>> GenerateCaptchaImage(string code)
+    public async Task<Result<byte[], Error>> GenerateCaptchaImage(string code)
     {
-        HttpResponseMessage response = await this.captchaGeneratorClient.GetAsync($"GenerateCaptcha/{code}");
-        if (!response.IsSuccessStatusCode)
-        {
-            return Result<byte[]>.FailureResult("Failed to generate captcha");
-        }
-        byte[] captcha = await response.Content.ReadAsByteArrayAsync();
-        return Result<byte[]>.SuccessResult(captcha);
+        return await this.captchaGeneratorClient
+            .GetAsync($"GenerateCaptcha/{code}")!
+            .ErrIfAsync(response => !response.IsSuccessStatusCode, "Failed to generate captcha")
+            .AndThenAsync(async response => await response.Content
+                .ReadAsByteArrayAsync()
+                .ToOkResultAsync());
     }
 
     public string GenerateCaptchaToken(string code)

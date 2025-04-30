@@ -1,7 +1,9 @@
 using Backend.Core;
 using Backend.DataAccess;
+using Backend.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Shared;
+using Shared.Extensions;
 
 namespace Backend.Services;
 
@@ -16,121 +18,84 @@ internal class LikesService : ILikesService
         this.postsService = postsService;
     }
 
-    public async Task<Result> LikeContentAsync(int contentId, int userId)
+    public async Task<Result<None, Error>> LikeContentAsync(int contentId, int userId)
     {
-        try
-        {
-            Result<Content> contentResult = await this.postsService.GetContentById(contentId);
-            if (!contentResult.Success)
-            {
-                return Result.FailureResult(contentResult.Error);
-            }
+        return await postsService.GetContentById(contentId)
+            .AndThenAsync(this.LikeContentAsync);
+    }
 
-            Content? content = contentResult.Value;
-            if (content == null)
-            {
-                return Result.FailureResult("Content not found");
-            }
-
-            bool alreadyLiked = await this.dbContext.Likes
-                .AnyAsync(l => l.ContentId == contentId && l.UserId == userId);
-
-            if (alreadyLiked)
-            {
-                return Result.FailureResult("User has already liked this content");
-            }
-
-            await this.dbContext.Likes.AddAsync(new Like
-            {
-                ContentId = contentId,
-                UserId = userId
+    public async Task<Result<None, Error>> UnlikeContentAsync(int contentId, int userId)
+    {
+        return await this.dbContext.Likes
+            .FirstOrDefaultAsync(l => l.ContentId == contentId && l.UserId == userId)
+            .ToResultAsync("User has not liked this content")
+            .AndThenAsync(async like => {
+                this.dbContext.Likes.Remove(like);
+                await this.dbContext.SaveChangesAsync();
+                return None.Value.ToOkResult();
             });
-            await this.dbContext.SaveChangesAsync();
-            return Result.SuccessResult();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error liking content: {ex}");
-            return Result.FailureResult("Failed to like content");
-        }
     }
 
-    public async Task<Result> UnlikeContentAsync(int contentId, int userId)
+    public async Task<Result<bool, Error>> HasUserLikedContentAsync(int contentId, int userId)
     {
-        try
-        {
-            Like? like = await this.dbContext.Likes
-                .FirstOrDefaultAsync(l => l.ContentId == contentId && l.UserId == userId);
+        return await this.dbContext.Likes
+            .AnyAsync(l => l.ContentId == contentId && l.UserId == userId)
+            .ToOkResultAsync();
+    }
+    
+    public async Task<Result<IEnumerable<bool>, Error>> HasUserLikedContentsAsync(int userId, IEnumerable<int> contentIds)
+    {
+        IEnumerable<int> contents = await this.dbContext.Likes
+            .Where(l => l.UserId == userId && contentIds.Contains(l.ContentId))
+            .Select(l => l.ContentId)
+            .ToListAsync();
+        
+        IEnumerable<bool> result = contentIds
+            .Select(contentId => contents.Contains(contentId))
+            .ToList();
+        
+        return result.ToOkResult();
+    }
 
-            if (like == null)
+    public async Task<Result<IEnumerable<Like>, Error>> GetLikesAsync(LikeFilter filter, LikeOrder order, int page, int pageSize)
+    {
+        IQueryable<Like> query = this.dbContext.Likes
+            .Include(l => l.User)
+            .Include(l => l.Content)
+            .Where(filter);
+        query = order(query);
+
+        IEnumerable<Like> likes = await query
+            .Skip(page * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return likes.ToOkResult();
+    }
+
+    public async Task<Result<int, Error>> GetLikesCountAsync(LikeFilter filter)
+    {
+        return await this.dbContext.Likes
+            .Where(filter)
+            .CountAsync()
+            .ToOkResultAsync();
+    }
+
+    private async Task<Result<None, Error>> LikeContentAsync(Content content)
+    {
+        return await this.dbContext.Likes
+            .AnyAsync(l => l.ContentId == content.Id && l.UserId == content.UserId)
+            .ErrIfAsync(alreadyLiked => alreadyLiked, "User has already liked this content")
+            .AndThenAsync(async _ =>
             {
-                return Result.FailureResult("User has not liked this content");
-            }
-
-            this.dbContext.Likes.Remove(like);
-            await this.dbContext.SaveChangesAsync();
-            return Result.SuccessResult();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error unliking content: {ex}");
-            return Result.FailureResult("Failed to unlike content");
-        }
-    }
-
-    public async Task<Result<bool>> HasUserLikedContentAsync(int contentId, int userId)
-    {
-        try
-        {
-            bool hasLiked = await this.dbContext.Likes
-                .AnyAsync(l => l.ContentId == contentId && l.UserId == userId);
-
-            return Result<bool>.SuccessResult(hasLiked);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error checking if user liked content: {ex}");
-            return Result<bool>.FailureResult("Failed to check if user liked content");
-        }
-    }
-
-    public async Task<Result<List<Like>>> GetLikesAsync(LikeFilter filter, LikeOrder order, int page, int pageSize)
-    {
-        try
-        {
-            IQueryable<Like> query = this.dbContext.Likes
-                .Include(l => l.User)
-                .Include(l => l.Content)
-                .Where(filter);
-            query = order(query);
-            List<Like> likes = await query
-                .Skip(page * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return Result<List<Like>>.SuccessResult(likes);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Error retrieving likes: {e}");
-            return Result<List<Like>>.FailureResult("An error occurred while retrieving likes");
-        }
-    }
-
-    public async Task<Result<int>> GetLikesCountAsync(LikeFilter filter)
-    {
-        try
-        {
-            int count = await this.dbContext.Likes
-                .Where(filter)
-                .CountAsync();
-
-            return Result<int>.SuccessResult(count);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Error getting likes count: {e}");
-            return Result<int>.FailureResult("An error occurred while retrieving likes count");
-        }
+                await this.dbContext.Likes
+                    .AddAsync(new Like
+                    {
+                        ContentId = content.Id,
+                        UserId = content.UserId
+                    });
+                await this.dbContext.SaveChangesAsync();
+                return None.Value.ToOkResult();
+            });
     }
 }
